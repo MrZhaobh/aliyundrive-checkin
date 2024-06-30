@@ -116,19 +116,27 @@ class Aliyundrive:
 
     @retry(stop=stop_after_attempt(10), wait=wait_random(min=5, max=30))
     def _get_reward(self, access_token: str, sign_day: int) -> tuple[bool, str]:
-        url = 'https://member.aliyundrive.com/v1/activity/sign_in_reward'
-        payload = {'signInDay': sign_day}
-        params = {'_rx-s': 'mobile'}
-        headers = {'Authorization': f'Bearer {access_token}'}
-
-        response = requests.post(url, json=payload, params=params, headers=headers, timeout=5)
-        data = response.json()
-
-        if 'result' not in data:
-            return False, data['message']
-
-        success = data['success']
-        return success, ''
+        import json
+        url = "https://member.aliyundrive.com/v1/activity/sign_in_reward"
+        params = {
+            '_rx-s': "mobile"
+        }
+        payload = json.dumps({
+            "signInDay": sign_day
+        })
+        headers = {
+            'User-Agent': "AliApp(AYSD/5.8.0) com.alicloud.databox/37029260 Channel/36176727979800@rimet_android_5.8.0 language/zh-CN /Android",
+            'Content-Type': "application/json",
+            'x-device-id': "0be6xxxxxxxxxxxxxxxxxxxxxxxxxxx7dac4",
+            'x-canary': "client=Android,app=adrive,version=v5.8.0",
+            'x-timestamp': "1716376521",
+            'x-nonce': "b9fd6ce6-a7ac-4d58-a419-f42a3aa31825",
+            'x-signature-v2': "568xxxxxxxxxxxxxxxxxxxxx236",
+            'authorization': f'Bearer {access_token}'
+        }
+        response = requests.post(url, params=params, data=payload, headers=headers)
+        print(response.text)
+        return True, response.text
 
     """
     今日奖励/任务
